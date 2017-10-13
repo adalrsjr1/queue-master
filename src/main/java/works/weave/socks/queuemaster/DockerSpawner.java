@@ -23,7 +23,7 @@ public class DockerSpawner {
 
 	private String imageName = "weaveworksdemos/worker";
 	private String imageVersion = "latest";
-	private String networkId = "weavedemo_backoffice";
+//	private String networkId = "weavedemo_backoffice";
 	private int poolSize = 50;
 
 	public void init() {
@@ -45,25 +45,25 @@ public class DockerSpawner {
 		}
 	}
 		
-//	public static void main(String[] args) {
-//		DockerSpawner ds = new DockerSpawner();
-//		ds.init();
-//		ds.spawn();
-//	}
-	
-	private String getWeaveNetworkId() {
-		return dc.listNetworksCmd().withNameFilter(networkId).exec().get(0).getName();
+	public static void main(String[] args) {
+		DockerSpawner ds = new DockerSpawner();
+		ds.init();
+		ds.spawn();
 	}
+	
+//	private String getWeaveNetworkId() {
+//		return dc.listNetworksCmd().withNameFilter(networkId).exec().get(0).getName();
+//	}
 
 	public void spawn() {
 		dockerPool.execute(new Runnable() {
 		    public void run() {
 				logger.info("Spawning new container");
 				try {
-					CreateContainerResponse container = dc.createContainerCmd(imageName + ":" + imageVersion).withNetworkMode(getWeaveNetworkId()).withCmd("ping", "rabbitmq").exec();
+					CreateContainerResponse container = dc.createContainerCmd(imageName + ":" + imageVersion).withCmd("ping", "127.0.0.1").exec();
 					String containerId = container.getId();
 					dc.startContainerCmd(containerId).exec();
-					logger.info("Spawned container with id: " + container.getId() + " on network: " + networkId);
+					logger.info("Spawned container with id: " + container.getId());
 					// TODO instead of just sleeping, call await on the container and remove once it's completed.
 					Thread.sleep(40000);
 					try {
